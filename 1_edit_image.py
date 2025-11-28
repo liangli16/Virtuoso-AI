@@ -66,3 +66,6 @@ if response.status_code == 200:
             print(f"Could not download the image. Status code: {img_response.status_code}")
 else:
     print(f"Error while generating the image. Status code: {response.status_code}, message: {response.json()['message']}")
+
+
+#testest
