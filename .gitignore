@@ -1,0 +1,9 @@
+node_modules/
+.env
+backend/uploads/*
+!backend/uploads/.gitkeep
+*.log
+.DS_Store
+generated_image.jpg
+generated_video.mp4
+

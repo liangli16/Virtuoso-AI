@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-powered product image and video generator">
+    <title>AI Product Generator</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <h1 class="header-title">🎨 AI Product Generator</h1>
+            <p class="header-subtitle">Create stunning product images and videos with AI</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            
+            <!-- Step 1: Upload Section -->
+            <section class="section upload-section" id="uploadSection">
+                <div class="section-header">
+                    <span class="step-number">1</span>
+                    <h2 class="section-title">Upload Images & Choose Colors</h2>
+                </div>
+                
+                <div class="upload-grid">
+                    <!-- Logo Upload -->
+                    <div class="upload-box">
+                        <label for="logoInput" class="upload-label">
+                            <div class="upload-icon">📷</div>
+                            <span class="upload-text">Upload Logo</span>
+                            <span class="upload-hint">PNG, JPG, WEBP (Max 10MB)</span>
+                        </label>
+                        <input 
+                            type="file" 
+                            id="logoInput" 
+                            accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                            class="file-input"
+                        >
+                        <div id="logoPreview" class="image-preview hidden">
+                            <img id="logoPreviewImg" src="" alt="Logo preview">
+                            <button type="button" class="remove-btn" id="removeLogoBtn">✕</button>
+                        </div>
+                    </div>
+
+                    <!-- Prototype Upload -->
+                    <div class="upload-box">
+                        <label for="prototypeInput" class="upload-label">
+                            <div class="upload-icon">🖼️</div>
+                            <span class="upload-text">Upload Prototype Design</span>
+                            <span class="upload-hint">PNG, JPG, WEBP (Max 10MB)</span>
+                        </label>
+                        <input 
+                            type="file" 
+                            id="prototypeInput" 
+                            accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                            class="file-input"
+                        >
+                        <div id="prototypePreview" class="image-preview hidden">
+                            <img id="prototypePreviewImg" src="" alt="Prototype preview">
+                            <button type="button" class="remove-btn" id="removePrototypeBtn">✕</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Color Scheme Selector -->
+                <div class="color-scheme-container">
+                    <label for="colorScheme" class="color-label">
+                        <span class="color-label-text">Color Scheme</span>
+                        <span class="color-hint">Choose your brand color</span>
+                    </label>
+                    <div class="color-input-wrapper">
+                        <input 
+                            type="color" 
+                            id="colorScheme" 
+                            value="#FF5733"
+                            class="color-input"
+                        >
+                        <span id="colorValue" class="color-value">#FF5733</span>
+                    </div>
+                </div>
+
+                <!-- Generate Image Button -->
+                <button 
+                    type="button" 
+                    id="generateImageBtn" 
+                    class="btn btn-primary"
+                    disabled
+                >
+                    Generate Product Image
+                </button>
+            </section>
+
+            <!-- Step 2: Image Preview Section -->
+            <section class="section image-section hidden" id="imageSection">
+                <div class="section-header">
+                    <span class="step-number">2</span>
+                    <h2 class="section-title">Generated Product Image</h2>
+                </div>
+
+                <!-- Loading State -->
+                <div id="imageLoading" class="loading-container">
+                    <div class="spinner"></div>
+                    <p class="loading-text" id="imageLoadingText">Generating your product image...</p>
+                    <p class="loading-subtext">This may take up to 5 minutes</p>
+                </div>
+
+                <!-- Image Result -->
+                <div id="imageResult" class="result-container hidden">
+                    <div class="image-display">
+                        <img id="generatedImage" src="" alt="Generated product image">
+                    </div>
+                    <div class="result-actions">
+                        <a 
+                            id="downloadImageBtn" 
+                            href="#" 
+                            download="product-image.jpg"
+                            class="btn btn-secondary"
+                        >
+                            📥 Download Image
+                        </a>
+                        <button 
+                            type="button" 
+                            id="generateVideoBtn" 
+                            class="btn btn-primary"
+                        >
+                            🎬 Generate Video
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Error State -->
+                <div id="imageError" class="error-container hidden">
+                    <p class="error-text">❌ Failed to generate image</p>
+                    <p class="error-message" id="imageErrorMessage"></p>
+                    <button type="button" id="retryImageBtn" class="btn btn-secondary">
+                        🔄 Try Again
+                    </button>
+                </div>
+            </section>
+
+            <!-- Step 3: Video Generation Section -->
+            <section class="section video-section hidden" id="videoSection">
+                <div class="section-header">
+                    <span class="step-number">3</span>
+                    <h2 class="section-title">Generate Promotional Video</h2>
+                </div>
+
+                <!-- Video Configuration -->
+                <div id="videoConfig" class="video-config">
+                    <div class="config-group">
+                        <label for="videoDuration" class="config-label">Video Duration</label>
+                        <select id="videoDuration" class="config-select">
+                            <option value="6">6 seconds</option>
+                            <option value="10">10 seconds</option>
+                        </select>
+                    </div>
+
+                    <div class="config-group">
+                        <label for="videoPrompt" class="config-label">
+                            Custom Prompt (Optional)
+                        </label>
+                        <textarea 
+                            id="videoPrompt" 
+                            class="config-textarea"
+                            placeholder="Describe how you want the video to look (optional)"
+                            maxlength="1000"
+                        ></textarea>
+                        <span class="config-hint">Leave empty for default professional showcase</span>
+                    </div>
+
+                    <button type="button" id="startVideoBtn" class="btn btn-primary">
+                        Generate Video
+                    </button>
+                </div>
+
+                <!-- Loading State -->
+                <div id="videoLoading" class="loading-container hidden">
+                    <div class="spinner"></div>
+                    <p class="loading-text" id="videoLoadingText">Generating your promotional video...</p>
+                    <p class="loading-subtext">This may take up to 10 minutes</p>
+                </div>
+
+                <!-- Video Result -->
+                <div id="videoResult" class="result-container hidden">
+                    <div class="video-display">
+                        <video id="generatedVideo" controls>
+                            <source src="" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                    <div class="result-actions">
+                        <a 
+                            id="downloadVideoBtn" 
+                            href="#" 
+                            download="product-video.mp4"
+                            class="btn btn-secondary"
+                        >
+                            📥 Download Video
+                        </a>
+                        <button 
+                            type="button" 
+                            id="createNewBtn" 
+                            class="btn btn-primary"
+                        >
+                            ✨ Create New Project
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Error State -->
+                <div id="videoError" class="error-container hidden">
+                    <p class="error-text">❌ Failed to generate video</p>
+                    <p class="error-message" id="videoErrorMessage"></p>
+                    <button type="button" id="retryVideoBtn" class="btn btn-secondary">
+                        🔄 Try Again
+                    </button>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Powered by Freepik AI • <a href="https://www.freepik.com/api" target="_blank" rel="noopener">API Documentation</a></p>
+        </footer>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
+
