@@ -50,8 +50,8 @@ router.post('/generate-image', uploadImages, handleUploadError, async (req, res)
       });
     }
     
-    // Validate color scheme
-    const { colorScheme } = req.body;
+    // Validate color scheme, style, and orientation
+    const { colorScheme, imageStyle, orientation } = req.body;
     if (!colorScheme) {
       logger.warn('Missing color scheme in request');
       return res.status(400).json({
@@ -70,6 +70,28 @@ router.post('/generate-image', uploadImages, handleUploadError, async (req, res)
       });
     }
     
+    // Validate image style
+    const validStyles = ['realistic', 'comic', '3d-render', 'watercolor', 'minimalist', 'vintage', 'neon', 'sketch'];
+    const selectedStyle = imageStyle || 'realistic';
+    if (!validStyles.includes(selectedStyle)) {
+      logger.warn('Invalid image style', { imageStyle: selectedStyle });
+      return res.status(400).json({
+        success: false,
+        message: `Invalid image style. Valid options: ${validStyles.join(', ')}`
+      });
+    }
+    
+    // Validate orientation
+    const validOrientations = ['landscape', 'portrait'];
+    const selectedOrientation = orientation || 'landscape';
+    if (!validOrientations.includes(selectedOrientation)) {
+      logger.warn('Invalid orientation', { orientation: selectedOrientation });
+      return res.status(400).json({
+        success: false,
+        message: `Invalid orientation. Valid options: ${validOrientations.join(', ')}`
+      });
+    }
+    
     // Extract file paths
     const logoPath = req.files.logo[0].path;
     const prototypePath = req.files.prototype[0].path;
@@ -78,6 +100,8 @@ router.post('/generate-image', uploadImages, handleUploadError, async (req, res)
       logo: req.files.logo[0].originalname,
       prototype: req.files.prototype[0].originalname,
       colorScheme,
+      imageStyle: selectedStyle,
+      orientation: selectedOrientation,
       logoSize: req.files.logo[0].size,
       prototypeSize: req.files.prototype[0].size
     });
@@ -86,7 +110,7 @@ router.post('/generate-image', uploadImages, handleUploadError, async (req, res)
     filesToCleanup.push(logoPath, prototypePath);
     
     // Call Freepik API service
-    const result = await generateImage(logoPath, prototypePath, colorScheme);
+    const result = await generateImage(logoPath, prototypePath, colorScheme, selectedStyle, selectedOrientation);
     
     // Cleanup uploaded files after processing
     await cleanupFiles(filesToCleanup);

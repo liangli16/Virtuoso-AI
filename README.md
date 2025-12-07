@@ -1,4 +1,4 @@
-# AI Product Generator
+# Virtuoso Ads
 
 A web application that generates AI-powered product images and videos using the Freepik API.
 

@@ -1,7 +1,7 @@
 {
-  "name": "ai-product-generator",
+  "name": "virtuoso-ads",
   "version": "1.0.0",
-  "description": "AI-powered product image and video generator using Freepik API",
+  "description": "Virtuoso Ads - AI-powered product image and video generator using Freepik API",
   "main": "backend/server.js",
   "scripts": {
     "start": "node backend/server.js",

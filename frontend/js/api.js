@@ -16,13 +16,17 @@ const API = {
    * @param {File} logoFile - Logo image file
    * @param {File} prototypeFile - Prototype design image file
    * @param {string} colorScheme - Hex color code (e.g., #FF5733)
+   * @param {string} imageStyle - Selected image style (realistic, comic, etc.)
+   * @param {string} orientation - Image orientation (landscape or portrait)
    * @returns {Promise<Object>} Response with task_id and status
    */
-  async generateImage(logoFile, prototypeFile, colorScheme) {
+  async generateImage(logoFile, prototypeFile, colorScheme, imageStyle = 'realistic', orientation = 'landscape') {
     console.log('API: Initiating image generation', { 
       logo: logoFile.name, 
       prototype: prototypeFile.name, 
-      colorScheme 
+      colorScheme,
+      imageStyle,
+      orientation
     });
 
     // Create FormData for multipart/form-data request
@@ -30,6 +34,8 @@ const API = {
     formData.append('logo', logoFile);
     formData.append('prototype', prototypeFile);
     formData.append('colorScheme', colorScheme);
+    formData.append('imageStyle', imageStyle);
+    formData.append('orientation', orientation);
 
     try {
       const response = await fetch(`${this.baseURL}/api/generate-image`, {

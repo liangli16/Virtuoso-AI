@@ -8,7 +8,9 @@
 const AppState = {
   logoFile: null,
   prototypeFile: null,
-  colorScheme: '#FF5733',
+  colorScheme: '#00D4FF',
+  imageStyle: 'realistic',
+  orientation: 'landscape',
   generatedImageUrl: null,
   imageTaskId: null,
   videoTaskId: null
@@ -18,7 +20,7 @@ const AppState = {
  * Initialize application when DOM is loaded
  */
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('App: Initializing AI Product Generator');
+  console.log('App: Initializing Virtuoso Ads');
   
   // Perform health check
   API.healthCheck()
@@ -47,6 +49,16 @@ function setupEventListeners() {
   
   // Color scheme listener
   document.getElementById('colorScheme').addEventListener('input', handleColorSchemeChange);
+  
+  // Style selector listeners (chip buttons)
+  document.querySelectorAll('.style-chip').forEach(chip => {
+    chip.addEventListener('click', handleStyleChange);
+  });
+  
+  // Orientation toggle listeners
+  document.querySelectorAll('.orientation-btn').forEach(btn => {
+    btn.addEventListener('click', handleOrientationChange);
+  });
   
   // Generate image button
   document.getElementById('generateImageBtn').addEventListener('click', handleGenerateImage);
@@ -185,6 +197,46 @@ function handleColorSchemeChange(event) {
 }
 
 /**
+ * Handles image style selection
+ * @param {Event} event - Click event on style chip
+ */
+function handleStyleChange(event) {
+  const chip = event.currentTarget;
+  const style = chip.dataset.style;
+  
+  // Update state
+  AppState.imageStyle = style;
+  
+  // Update UI - remove selected class from all, add to clicked
+  document.querySelectorAll('.style-chip').forEach(c => {
+    c.classList.remove('selected');
+  });
+  chip.classList.add('selected');
+  
+  console.log('App: Image style changed', { style });
+}
+
+/**
+ * Handles orientation selection
+ * @param {Event} event - Click event on orientation button
+ */
+function handleOrientationChange(event) {
+  const btn = event.currentTarget;
+  const orientation = btn.dataset.orientation;
+  
+  // Update state
+  AppState.orientation = orientation;
+  
+  // Update UI - remove selected class from all, add to clicked
+  document.querySelectorAll('.orientation-btn').forEach(b => {
+    b.classList.remove('selected');
+  });
+  btn.classList.add('selected');
+  
+  console.log('App: Orientation changed', { orientation });
+}
+
+/**
  * Checks if generate button should be enabled
  * Enables button only when both files are selected
  */
@@ -225,7 +277,9 @@ async function handleGenerateImage() {
     const initResult = await API.generateImage(
       AppState.logoFile,
       AppState.prototypeFile,
-      AppState.colorScheme
+      AppState.colorScheme,
+      AppState.imageStyle,
+      AppState.orientation
     );
     
     // Store task ID
@@ -342,7 +396,9 @@ function handleCreateNew() {
     // Reset application state
     AppState.logoFile = null;
     AppState.prototypeFile = null;
-    AppState.colorScheme = '#FF5733';
+    AppState.colorScheme = '#00D4FF';
+    AppState.imageStyle = 'realistic';
+    AppState.orientation = 'landscape';
     AppState.generatedImageUrl = null;
     AppState.imageTaskId = null;
     AppState.videoTaskId = null;

@@ -53,17 +53,65 @@ const convertImageToBase64 = async (filePath) => {
 };
 
 /**
- * Creates a prompt for image generation incorporating color scheme
+ * Style descriptions for AI image generation
+ * Maps style names to detailed AI prompt descriptions
+ */
+const STYLE_PROMPTS = {
+  'realistic': 'photorealistic, professional photography, high resolution, detailed textures, natural lighting, studio quality',
+  'comic': 'comic book style, bold outlines, vibrant colors, halftone dots, pop art influence, dynamic composition, cartoon aesthetic',
+  '3d-render': '3D rendered, CGI quality, smooth surfaces, ray tracing, modern 3D graphics, Blender/Cinema4D style, clean geometry',
+  'watercolor': 'watercolor painting style, soft edges, artistic brushstrokes, paper texture, flowing colors, artistic and painterly',
+  'minimalist': 'minimalist design, clean lines, simple shapes, limited color palette, lots of white space, modern and sleek',
+  'vintage': 'vintage retro style, aged look, warm tones, film grain, 70s/80s aesthetic, nostalgic feel, old photography look',
+  'neon': 'neon glow effect, cyberpunk aesthetic, bright fluorescent colors, dark background, futuristic, synthwave style',
+  'sketch': 'pencil sketch style, hand-drawn look, crosshatching, artistic lines, black and white with subtle shading, illustration style'
+};
+
+/**
+ * Orientation descriptions for image dimensions
+ */
+const ORIENTATION_PROMPTS = {
+  'landscape': 'wide horizontal 16:9 landscape format, wider than tall',
+  'portrait': 'tall vertical 9:16 portrait format, taller than wide'
+};
+
+/**
+ * Creates a prompt for image generation incorporating color scheme, style, and orientation
  * @param {string} colorScheme - Hex color code from user input
+ * @param {string} style - Selected image style
+ * @param {string} orientation - Image orientation (landscape or portrait)
  * @returns {string} Formatted prompt for AI image generation
  */
-const createImagePrompt = (colorScheme) => {
-  const prompt = `Create a professional product poster/mockup that combines the logo and design elements from the reference images. 
-Apply a cohesive color scheme featuring ${colorScheme} as the primary color. 
-The result should be a polished, marketing-ready product image with modern design aesthetics, 
-professional lighting, and high-quality rendering suitable for promotional materials.`;
+const createImagePrompt = (colorScheme, style = 'realistic', orientation = 'landscape') => {
+  const styleDescription = STYLE_PROMPTS[style] || STYLE_PROMPTS['realistic'];
+  const orientationDescription = ORIENTATION_PROMPTS[orientation] || ORIENTATION_PROMPTS['landscape'];
   
-  logger.debug('Generated image prompt', { colorScheme, promptLength: prompt.length });
+  const prompt = `Create a professional product advertisement image in ${orientationDescription}.
+
+CRITICAL INSTRUCTIONS FOR LOGO PLACEMENT:
+- The FIRST reference image contains a LOGO that MUST be placed prominently on the product
+- The SECOND reference image shows the PRODUCT/PROTOTYPE design
+- Place the logo clearly and visibly ON the product surface (on the front, label area, or most visible part)
+- The logo must be properly sized, correctly oriented, and naturally integrated
+- Ensure the logo is NOT distorted, stretched, or placed awkwardly
+- The logo should look like it was professionally printed/applied to the product
+
+STYLE: ${styleDescription}
+
+BRAND COLOR INSTRUCTIONS (VERY IMPORTANT):
+- Apply the brand color ${colorScheme} specifically to the PRODUCT ITSELF
+- The product's packaging, label, body, casing, or surface should prominently feature this color
+- Make the product's main color be ${colorScheme} (for example: if it's a bottle, make the bottle this color; if it's a box, make the box this color)
+- Do NOT just apply this color to the background or lighting
+- The background should be neutral or complementary, but the PRODUCT must be the featured color
+
+OUTPUT: A polished, marketing-ready product image with:
+1. The logo correctly displayed on the product
+2. The product colored in ${colorScheme} as its main/dominant color
+3. Professional lighting, clean composition
+4. High-quality ${style} aesthetics suitable for advertisements`;
+  
+  logger.debug('Generated image prompt', { colorScheme, style, orientation, promptLength: prompt.length });
   return prompt;
 };
 
@@ -88,15 +136,19 @@ const createVideoPrompt = (customPrompt) => {
  * @param {string} logoPath - Path to logo image file
  * @param {string} prototypePath - Path to prototype design image file
  * @param {string} colorScheme - Hex color code for the color scheme
+ * @param {string} style - Selected image style (realistic, comic, etc.)
+ * @param {string} orientation - Image orientation (landscape or portrait)
  * @returns {Promise<Object>} Response containing task_id and initial status
  */
-const generateImage = async (logoPath, prototypePath, colorScheme) => {
+const generateImage = async (logoPath, prototypePath, colorScheme, style = 'realistic', orientation = 'landscape') => {
   validateApiKey();
   
   logger.info('Starting image generation', { 
     logoPath, 
     prototypePath, 
-    colorScheme 
+    colorScheme,
+    style,
+    orientation
   });
   
   try {
@@ -106,7 +158,7 @@ const generateImage = async (logoPath, prototypePath, colorScheme) => {
     
     // Prepare request payload
     const payload = {
-      prompt: createImagePrompt(colorScheme),
+      prompt: createImagePrompt(colorScheme, style, orientation),
       reference_images: [logoBase64, prototypeBase64]
     };
     

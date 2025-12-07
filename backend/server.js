@@ -134,13 +134,13 @@ app.use((err, req, res, next) => {
  */
 const server = app.listen(PORT, () => {
   logger.info('='.repeat(60));
-  logger.info('AI Product Generator Server Started', {
+  logger.info('Virtuoso Ads Server Started', {
     port: PORT,
     environment: process.env.NODE_ENV || 'development',
     nodeVersion: process.version
   });
   logger.info(`Server running at http://localhost:${PORT}`);
-  logger.info(`Frontend available at http://localhost:${PORT}`);
+  logger.info(`Virtuoso Ads available at http://localhost:${PORT}`);
   logger.info(`API endpoints at http://localhost:${PORT}/api`);
   logger.info('='.repeat(60));
 });

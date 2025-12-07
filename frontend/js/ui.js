@@ -232,9 +232,27 @@ const UI = {
     this.hide('logoPreview');
     this.hide('prototypePreview');
     
-    // Reset color scheme
-    document.getElementById('colorScheme').value = '#FF5733';
-    document.getElementById('colorValue').textContent = '#FF5733';
+    // Reset color scheme (new default is cyan)
+    document.getElementById('colorScheme').value = '#00D4FF';
+    document.getElementById('colorValue').textContent = '#00D4FF';
+    
+    // Reset style selection (chips)
+    document.querySelectorAll('.style-chip').forEach(chip => {
+      chip.classList.remove('selected');
+    });
+    const realisticChip = document.querySelector('.style-chip[data-style="realistic"]');
+    if (realisticChip) {
+      realisticChip.classList.add('selected');
+    }
+    
+    // Reset orientation selection
+    document.querySelectorAll('.orientation-btn').forEach(btn => {
+      btn.classList.remove('selected');
+    });
+    const landscapeBtn = document.querySelector('.orientation-btn[data-orientation="landscape"]');
+    if (landscapeBtn) {
+      landscapeBtn.classList.add('selected');
+    }
     
     // Reset video configuration
     document.getElementById('videoDuration').value = '6';
