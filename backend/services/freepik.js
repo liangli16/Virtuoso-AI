@@ -116,16 +116,43 @@ OUTPUT: A polished, marketing-ready product image with:
 };
 
 /**
- * Creates a prompt for video generation
- * @param {string} customPrompt - Optional custom prompt from user
+ * Video content style prompts
+ * Maps video content style to detailed descriptions
+ */
+const VIDEO_CONTENT_PROMPTS = {
+  'showcase': {
+    name: 'Product Showcase',
+    description: 'A smooth 3D rotation showcase of the product. The product appears to rotate slowly in 3D space, giving viewers a complete view of its shape and design. The rotation should clearly show the logo and branding on the product surface. Add a subtle drop shadow beneath the product and use a clean, minimal background. Professional studio lighting that enhances the product\'s contours and details as it rotates. The pseudo-3D effect makes the 2D product image feel dimensional and premium.'
+  },
+  'coming-soon': {
+    name: 'Coming Soon',
+    description: 'A dramatic, anticipation-building reveal of the product. Quick dynamic cuts with dramatic lighting changes - the product emerges from shadow into spotlight. Cinematic feel with tension-building camera movements. Creates excitement and urgency for product launches and pre-orders.'
+  },
+  'lifestyle': {
+    name: 'Lifestyle Context',
+    description: 'The product seamlessly integrated into a realistic, desirable real-world environment. Show the product being used or displayed in context - on a stylish desk, in a modern home, or in an appropriate lifestyle setting. Natural movement and ambient lighting that tells a story about how the product fits into daily life.'
+  }
+};
+
+/**
+ * Creates a prompt for video generation based on content style and image style
+ * @param {string} videoContentStyle - Selected video content style (showcase, coming-soon, lifestyle)
+ * @param {string} imageStyle - The image style used for generation (to align video aesthetics)
  * @returns {string} Formatted prompt for AI video generation
  */
-const createVideoPrompt = (customPrompt) => {
-  const defaultPrompt = 'A smooth, professional product showcase with dynamic camera movement, highlighting the product features in a real-world scenario with professional lighting and composition';
-  const prompt = customPrompt || defaultPrompt;
+const createVideoPrompt = (videoContentStyle = 'showcase', imageStyle = 'realistic') => {
+  const contentPrompt = VIDEO_CONTENT_PROMPTS[videoContentStyle] || VIDEO_CONTENT_PROMPTS['showcase'];
+  const styleDescription = STYLE_PROMPTS[imageStyle] || STYLE_PROMPTS['realistic'];
+  
+  const prompt = `${contentPrompt.description}
+
+Visual Style: Maintain ${imageStyle} aesthetics throughout - ${styleDescription}.
+
+The video should feel cohesive with the product image style while adding motion and life to the advertisement.`;
   
   logger.debug('Generated video prompt', { 
-    isCustom: !!customPrompt, 
+    videoContentStyle,
+    imageStyle,
     promptLength: prompt.length 
   });
   return prompt;
@@ -262,16 +289,18 @@ const checkImageStatus = async (taskId) => {
  * Initiates video generation request to Freepik API
  * @param {string} imageUrl - URL of the generated product image (or uploaded image)
  * @param {number} duration - Video duration (6 or 10 seconds)
- * @param {string} prompt - Optional custom prompt for video generation
+ * @param {string} videoContentStyle - Video content style (showcase, coming-soon, lifestyle)
+ * @param {string} imageStyle - Image style to align video aesthetics with
  * @returns {Promise<Object>} Response containing task_id and initial status
  */
-const generateVideo = async (imageUrl, duration = 6, prompt = null) => {
+const generateVideo = async (imageUrl, duration = 6, videoContentStyle = 'showcase', imageStyle = 'realistic') => {
   validateApiKey();
   
   logger.info('Starting video generation', { 
     imageUrl, 
     duration, 
-    hasCustomPrompt: !!prompt 
+    videoContentStyle,
+    imageStyle
   });
   
   try {
@@ -283,7 +312,7 @@ const generateVideo = async (imageUrl, duration = 6, prompt = null) => {
     // Prepare request payload
     const payload = {
       first_frame_image: imageUrl,
-      prompt: createVideoPrompt(prompt),
+      prompt: createVideoPrompt(videoContentStyle, imageStyle),
       prompt_optimizer: true, // Enable automatic prompt optimization
       duration: duration.toString()
     };

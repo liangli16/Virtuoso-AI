@@ -128,14 +128,16 @@ const API = {
    * Initiates video generation from a product image
    * @param {string} imageUrl - URL of the product image
    * @param {number} duration - Video duration (6 or 10 seconds)
-   * @param {string} prompt - Optional custom prompt
+   * @param {string} videoContentStyle - Video content style (showcase, coming-soon, lifestyle)
+   * @param {string} imageStyle - The image style used for generation (to align video style)
    * @returns {Promise<Object>} Response with task_id and status
    */
-  async generateVideo(imageUrl, duration = 6, prompt = null) {
+  async generateVideo(imageUrl, duration = 6, videoContentStyle = 'showcase', imageStyle = 'realistic') {
     console.log('API: Initiating video generation', { 
       imageUrl, 
       duration, 
-      hasPrompt: !!prompt 
+      videoContentStyle,
+      imageStyle
     });
 
     try {
@@ -147,7 +149,8 @@ const API = {
         body: JSON.stringify({
           imageUrl,
           duration: parseInt(duration),
-          prompt: prompt || null
+          videoContentStyle,
+          imageStyle
         })
       });
 

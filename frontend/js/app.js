@@ -11,6 +11,7 @@ const AppState = {
   colorScheme: '#00D4FF',
   imageStyle: 'realistic',
   orientation: 'landscape',
+  videoContentStyle: 'showcase',
   generatedImageUrl: null,
   imageTaskId: null,
   videoTaskId: null
@@ -68,6 +69,11 @@ function setupEventListeners() {
   
   // Generate video button
   document.getElementById('generateVideoBtn').addEventListener('click', handleShowVideoConfig);
+  
+  // Video content style listeners
+  document.querySelectorAll('.video-style-card').forEach(card => {
+    card.addEventListener('click', handleVideoStyleChange);
+  });
   
   // Start video generation button
   document.getElementById('startVideoBtn').addEventListener('click', handleGenerateVideo);
@@ -314,6 +320,26 @@ async function handleGenerateImage() {
 }
 
 /**
+ * Handles video content style selection
+ * @param {Event} event - Click event on video style card
+ */
+function handleVideoStyleChange(event) {
+  const card = event.currentTarget;
+  const style = card.dataset.videoStyle;
+  
+  // Update state
+  AppState.videoContentStyle = style;
+  
+  // Update UI - remove selected class from all, add to clicked
+  document.querySelectorAll('.video-style-card').forEach(c => {
+    c.classList.remove('selected');
+  });
+  card.classList.add('selected');
+  
+  console.log('App: Video content style changed', { style });
+}
+
+/**
  * Shows video configuration section
  */
 function handleShowVideoConfig() {
@@ -337,9 +363,10 @@ async function handleGenerateVideo() {
   try {
     // Get user inputs
     const duration = parseInt(document.getElementById('videoDuration').value);
-    const prompt = document.getElementById('videoPrompt').value.trim() || null;
+    const videoContentStyle = AppState.videoContentStyle;
+    const imageStyle = AppState.imageStyle; // Pass image style to align video with it
     
-    console.log('App: Video generation parameters', { duration, hasPrompt: !!prompt });
+    console.log('App: Video generation parameters', { duration, videoContentStyle, imageStyle });
     
     // Disable start button during processing
     UI.disableButton('startVideoBtn');
@@ -352,7 +379,8 @@ async function handleGenerateVideo() {
     const initResult = await API.generateVideo(
       AppState.generatedImageUrl,
       duration,
-      prompt
+      videoContentStyle,
+      imageStyle
     );
     
     // Store task ID
@@ -399,6 +427,7 @@ function handleCreateNew() {
     AppState.colorScheme = '#00D4FF';
     AppState.imageStyle = 'realistic';
     AppState.orientation = 'landscape';
+    AppState.videoContentStyle = 'showcase';
     AppState.generatedImageUrl = null;
     AppState.imageTaskId = null;
     AppState.videoTaskId = null;

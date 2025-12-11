@@ -146,17 +146,26 @@ const UI = {
     this.hide('videoLoading');
     this.hide('videoResult');
     this.hide('videoError');
+    
+    // Reset button state
+    this.enableButton('startVideoBtn');
+    this.setText(document.querySelector('#startVideoBtn .btn-text'), 'Generate Video');
   },
 
   /**
    * Shows video section with loading state
+   * Keeps config visible so user can see selected options
    */
   showVideoLoading() {
     console.log('UI: Showing video loading state');
-    this.hide('videoConfig');
+    this.show('videoConfig');
     this.show('videoLoading');
     this.hide('videoResult');
     this.hide('videoError');
+    
+    // Disable the generate button during loading
+    this.disableButton('startVideoBtn');
+    this.setText(document.querySelector('#startVideoBtn .btn-text'), 'Generating...');
   },
 
   /**
@@ -170,12 +179,13 @@ const UI = {
 
   /**
    * Shows video generation result
+   * Keeps config visible so user can regenerate with different options
    * @param {string} videoUrl - URL of the generated video
    */
   showVideoResult(videoUrl) {
     console.log('UI: Showing video result', { videoUrl });
     
-    this.hide('videoConfig');
+    this.show('videoConfig');
     this.hide('videoLoading');
     this.hide('videoError');
     this.show('videoResult');
@@ -188,21 +198,30 @@ const UI = {
     // Set download link
     const downloadBtn = document.getElementById('downloadVideoBtn');
     downloadBtn.href = videoUrl;
+    
+    // Re-enable the generate button for regeneration
+    this.enableButton('startVideoBtn');
+    this.setText(document.querySelector('#startVideoBtn .btn-text'), 'Regenerate Video');
   },
 
   /**
    * Shows video generation error
+   * Keeps config visible so user can retry with different options
    * @param {string} errorMessage - Error message to display
    */
   showVideoError(errorMessage) {
     console.log('UI: Showing video error', { errorMessage });
     
-    this.hide('videoConfig');
+    this.show('videoConfig');
     this.hide('videoLoading');
     this.hide('videoResult');
     this.show('videoError');
     
     this.setText('videoErrorMessage', errorMessage);
+    
+    // Re-enable the generate button for retry
+    this.enableButton('startVideoBtn');
+    this.setText(document.querySelector('#startVideoBtn .btn-text'), 'Try Again');
   },
 
   /**
@@ -256,7 +275,15 @@ const UI = {
     
     // Reset video configuration
     document.getElementById('videoDuration').value = '6';
-    document.getElementById('videoPrompt').value = '';
+    
+    // Reset video content style
+    document.querySelectorAll('.video-style-card').forEach(card => {
+      card.classList.remove('selected');
+    });
+    const showcaseCard = document.querySelector('.video-style-card[data-video-style="showcase"]');
+    if (showcaseCard) {
+      showcaseCard.classList.add('selected');
+    }
     
     // Disable generate button
     this.disableButton('generateImageBtn');

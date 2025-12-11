@@ -43,7 +43,7 @@ router.post('/generate-video', async (req, res) => {
     logger.logRequest(req, 'Video generation requested');
     
     // Extract and validate request data
-    const { imageUrl, duration = 6, prompt = null } = req.body;
+    const { imageUrl, duration = 6, videoContentStyle = 'showcase', imageStyle = 'realistic' } = req.body;
     
     // Validate required fields
     if (!imageUrl) {
@@ -75,24 +75,26 @@ router.post('/generate-video', async (req, res) => {
       });
     }
     
-    // Validate prompt length if provided
-    if (prompt && prompt.length > 1000) {
-      logger.warn('Prompt too long', { promptLength: prompt.length });
+    // Validate video content style
+    const validVideoStyles = ['showcase', 'coming-soon', 'lifestyle'];
+    const selectedVideoStyle = videoContentStyle || 'showcase';
+    if (!validVideoStyles.includes(selectedVideoStyle)) {
+      logger.warn('Invalid video content style', { videoContentStyle: selectedVideoStyle });
       return res.status(400).json({
         success: false,
-        message: 'Prompt must be less than 1000 characters'
+        message: `Invalid video content style. Valid options: ${validVideoStyles.join(', ')}`
       });
     }
     
     logger.info('Processing video generation', {
       imageUrl,
       duration: durationNum,
-      hasCustomPrompt: !!prompt,
-      promptLength: prompt?.length || 0
+      videoContentStyle: selectedVideoStyle,
+      imageStyle
     });
     
     // Call Freepik API service
-    const result = await generateVideo(imageUrl, durationNum, prompt);
+    const result = await generateVideo(imageUrl, durationNum, selectedVideoStyle, imageStyle);
     
     // Return task ID for status polling
     res.json(result);
@@ -182,4 +184,5 @@ router.get('/video-status/:taskId', async (req, res) => {
 });
 
 module.exports = router;
+
 

@@ -222,6 +222,35 @@
 
                 <!-- Video Configuration -->
                 <div id="videoConfig" class="video-config">
+                    <!-- Video Content Style -->
+                    <div class="config-item">
+                        <label class="config-label">Content Style</label>
+                        <div class="video-style-cards" id="videoStyleOptions">
+                            <button type="button" class="video-style-card selected" data-video-style="showcase">
+                                <div class="video-style-icon">✨</div>
+                                <div class="video-style-info">
+                                    <span class="video-style-name">Product Showcase</span>
+                                    <span class="video-style-desc">Slow 3D rotation showcasing product shape and logo</span>
+                                </div>
+                            </button>
+                            <button type="button" class="video-style-card" data-video-style="coming-soon">
+                                <div class="video-style-icon">🚀</div>
+                                <div class="video-style-info">
+                                    <span class="video-style-name">Coming Soon</span>
+                                    <span class="video-style-desc">Dramatic reveal with anticipation building effects</span>
+                                </div>
+                            </button>
+                            <button type="button" class="video-style-card" data-video-style="lifestyle">
+                                <div class="video-style-icon">💖</div>
+                                <div class="video-style-info">
+                                    <span class="video-style-name">Lifestyle</span>
+                                    <span class="video-style-desc">Product in real-world context and environment</span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Duration -->
                     <div class="config-row">
                         <div class="config-item">
                             <label for="videoDuration" class="config-label">Duration</label>
@@ -232,11 +261,8 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="config-item config-item-wide">
-                            <label for="videoPrompt" class="config-label">Custom Prompt <span class="optional">(optional)</span></label>
-                            <textarea id="videoPrompt" class="config-textarea" placeholder="Describe how you want the video to look..." maxlength="1000"></textarea>
-                        </div>
                     </div>
+
                     <button type="button" id="startVideoBtn" class="btn btn-primary btn-large">
                         <span class="btn-text">Generate Video</span>
                         <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

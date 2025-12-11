@@ -158,3 +158,6 @@ For issues with:
 - Freepik API: https://www.freepik.com/api/docs
 - This application: Check the logs in `logs/` directory
 
+
+
+
