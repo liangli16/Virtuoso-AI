@@ -50,7 +50,10 @@ app.use((req, res, next) => {
  * Static file serving
  * Serves frontend files from the frontend directory
  */
-app.use(express.static(path.join(__dirname, '../frontend')));
+const frontendPath = process.env.NODE_ENV === 'production'
+  ? path.join(process.cwd(), 'frontend')  // Vercel: use current working directory
+  : path.join(__dirname, '../frontend');  // Development: use relative path
+app.use(express.static(frontendPath));
 
 // Routes
 // ============================================================================
@@ -86,7 +89,10 @@ app.use('/api', videoRoutes);
  * Root endpoint - serves the main HTML page
  */
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+  const indexPath = process.env.NODE_ENV === 'production'
+    ? path.join(process.cwd(), 'frontend', 'index.html')  // Vercel: use current working directory
+    : path.join(__dirname, '../frontend', 'index.html');  // Development: use relative path
+  res.sendFile(indexPath);
 });
 
 // Error Handling Middleware
@@ -132,36 +138,45 @@ app.use((err, req, res, next) => {
  * Start the Express server
  * Listens on configured port and logs startup information
  */
-const server = app.listen(PORT, () => {
-  logger.info('='.repeat(60));
-  logger.info('Virtuoso Ads Server Started', {
-    port: PORT,
-    environment: process.env.NODE_ENV || 'development',
-    nodeVersion: process.version
+let server;
+if (process.env.NODE_ENV === 'production') {
+  // In production (Vercel), export the app instead of starting a server
+  module.exports = app;
+} else {
+  // In development, start the server normally
+  server = app.listen(PORT, () => {
+    logger.info('='.repeat(60));
+    logger.info('Virtuoso Ads Server Started', {
+      port: PORT,
+      environment: process.env.NODE_ENV || 'development',
+      nodeVersion: process.version
+    });
+    logger.info(`Server running at http://localhost:${PORT}`);
+    logger.info(`Virtuoso Ads available at http://localhost:${PORT}`);
+    logger.info(`API endpoints at http://localhost:${PORT}/api`);
+    logger.info('='.repeat(60));
   });
-  logger.info(`Server running at http://localhost:${PORT}`);
-  logger.info(`Virtuoso Ads available at http://localhost:${PORT}`);
-  logger.info(`API endpoints at http://localhost:${PORT}/api`);
-  logger.info('='.repeat(60));
-});
+}
 
 /**
  * Graceful shutdown handler
  * Closes server connections cleanly on SIGTERM/SIGINT
  */
 const gracefulShutdown = () => {
-  logger.info('Received shutdown signal, closing server gracefully...');
-  
-  server.close(() => {
-    logger.info('Server closed successfully');
-    process.exit(0);
-  });
-  
-  // Force close after 10 seconds
-  setTimeout(() => {
-    logger.error('Could not close connections in time, forcefully shutting down');
-    process.exit(1);
-  }, 10000);
+  if (server) { // Only run if server is defined (development environment)
+    logger.info('Received shutdown signal, closing server gracefully...');
+
+    server.close(() => {
+      logger.info('Server closed successfully');
+      process.exit(0);
+    });
+
+    // Force close after 10 seconds
+    setTimeout(() => {
+      logger.error('Could not close connections in time, forcefully shutting down');
+      process.exit(1);
+    }, 10000);
+  }
 };
 
 // Listen for termination signals

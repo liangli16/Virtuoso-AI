@@ -7,34 +7,44 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const logger = require('../utils/logger');
 
-// Ensure uploads directory exists
-const uploadDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadDir)) {
+// Use temporary directory for Vercel compatibility
+const uploadDir = process.env.NODE_ENV === 'production'
+  ? path.join(process.cwd(), 'tmp')  // Vercel: use tmp directory
+  : path.join(__dirname, '../uploads'); // Development: use uploads directory
+
+// Ensure uploads directory exists (only in development)
+if (process.env.NODE_ENV !== 'production' && !fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
   logger.info('Created uploads directory', { path: uploadDir });
 }
 
 /**
  * Storage configuration for multer
- * Stores files in backend/uploads with unique timestamped filenames
+ * Stores files in appropriate directory based on environment
  */
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, uploadDir);
+    // For Vercel, always use temporary directory
+    const dest = process.env.NODE_ENV === 'production'
+      ? os.tmpdir()
+      : uploadDir;
+    cb(null, dest);
   },
   filename: (req, file, cb) => {
     // Generate unique filename: fieldname-timestamp-random.ext
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     const ext = path.extname(file.originalname);
     const filename = `${file.fieldname}-${uniqueSuffix}${ext}`;
-    
-    logger.debug('Saving uploaded file', { 
-      originalName: file.originalname, 
-      savedAs: filename 
+
+    logger.debug('Saving uploaded file', {
+      originalName: file.originalname,
+      savedAs: filename,
+      environment: process.env.NODE_ENV
     });
-    
+
     cb(null, filename);
   }
 });
@@ -163,6 +173,8 @@ module.exports = {
   handleUploadError,
   cleanupFiles
 };
+
+
 
 
 
